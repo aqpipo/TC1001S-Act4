@@ -10,32 +10,28 @@ Exercises
 
 from random import randrange
 from turtle import *
-
 from freegames import vector
 
 ball = vector(-200, -200)
 speed = vector(0, 0)
 targets = []
 
-
 def tap(x, y):
-    """Respond to screen tap."""
+    """Lanza la bala si está fuera de pantalla."""
     if not inside(ball):
         ball.x = -199
         ball.y = -199
-        speed.x = (x + 200) / 25
-        speed.y = (y + 200) / 25
-
+        # Más velocidad al proyectil (ajustable)
+        speed.x = (x + 150) / 10
+        speed.y = (y + 150) / 10
 
 def inside(xy):
-    """Return True if xy within screen."""
+    """True si xy está dentro de la ventana."""
     return -200 < xy.x < 200 and -200 < xy.y < 200
 
-
 def draw():
-    """Draw ball and targets."""
+    """Dibuja bala y targets."""
     clear()
-
     for target in targets:
         goto(target.x, target.y)
         dot(20, 'blue')
@@ -46,37 +42,41 @@ def draw():
 
     update()
 
-
 def move():
-    """Move ball and targets."""
+    """Mueve bala y targets (juego infinito)."""
+    # Spawnea targets cada cierto tiempo
     if randrange(40) == 0:
-        y = randrange(-150, 150)
-        target = vector(200, y)
-        targets.append(target)
+        targets.append(vector(200, randrange(-150, 150)))
 
+    # Avance de targets (puedes subir a -2 o -3 para más velocidad)
     for target in targets:
-        target.x -= 0.5
+        target.x -= 1
 
+        # Re-posiciona target al salir de pantalla (wrap a la derecha)
+        if not inside(target):
+            target.x = 200
+            target.y = randrange(-150, 150)
+
+    # Física de la bala
     if inside(ball):
-        speed.y -= 0.35
+        speed.y -= 1      # gravedad
         ball.move(speed)
+    else:
+        # Si salió, déjala lista para el siguiente tap
+        ball.x, ball.y = -200, -200
+        speed.x = speed.y = 0
 
+    # Colisiones: elimina target si la bala lo golpea
     dupe = targets.copy()
     targets.clear()
-
     for target in dupe:
         if abs(target - ball) > 13:
             targets.append(target)
 
     draw()
-
-    for target in targets:
-        if not inside(target):
-            return
-
     ontimer(move, 50)
 
-
+# Inicialización
 setup(420, 420, 370, 0)
 hideturtle()
 up()

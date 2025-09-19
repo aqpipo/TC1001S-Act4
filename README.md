@@ -1,2 +1,2 @@
 # TC1001S-Act4
-Juego del Tiro Parabólico
+En esta versión del juego cannon se aumento la velocidad del proyectil y de los balones
